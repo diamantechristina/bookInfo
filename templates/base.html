@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie-edge, safari">
+        <link rel="stylesheet" href="{{ url_for('static', filename='w3.css')}}">
+        <title>BOOK INFORMATION</title>
+    </head>
+    <body>
+        <div class="w3-container w3-bar w3-black w3-padding">
+            <h3>BOOK INFORMATION</h3>
+        </div>
+        <div class="w3-container w3-padding">
+            {%block content%}
+            {%endblock%}
+            <hr/>
+            <div class="w3-center" style="font-family: Calibre; font-weight: bold; font-size: 20px;">
+                &copy: copyright 2024 DIAMANTE, CHRISTINA
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,133 @@
+{% extends 'base.html'%}
+
+
+{% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="error-banner" style="color: red; font-weight: bold; margin-bottom: 20px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    <script>
+        function confirmCancel() {
+            document.getElementById("isbn").readOnly = false;
+            return confirm("Are you sure you want to cancel?");
+        }
+
+        function confirmDelete(isbn) {
+            return confirm("Are you sure you want to delete "+isbn+"?");
+        }
+
+        function editBook(isbn, title, author, copyright, edition, price, qty) {
+            document.getElementById("isbn").value = isbn;
+            document.getElementById("isbn").readOnly = true;
+            document.getElementById("title").value = title;
+            document.getElementById("author").value = author;
+            document.getElementById("copyright").value = copyright;
+            document.getElementById("edition").value = edition.slice(0, -2);
+            document.getElementById("price").value = price;
+            document.getElementById("qty").value = qty;
+
+            document.getElementById('form').action = "/update/" + isbn;
+            document.getElementById('form').method = "POST"; 
+
+        }
+        function submitDelete(isbn) {
+            if (confirmDelete(isbn) == true) {
+            fetch('/delete/' + isbn, { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to delete the book');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+    <div class="w3-container flex-container" style="display: flex; flex-direction: row">
+        
+        <div
+            style="width: 40%; display: flex; flex-direction: column; justify-content: center; border: 1px solid black; padding: 30px; margin: 10px; border-radius: 20px; box-shadow: 0px 0px 5px 2px;"
+        >
+            <form action="/addBook" method="POST" id="form">
+                <label for="isbn" style="font-family: Calibre; font-weight: bold; font-size: 20px;">ISBN</label>
+                <br/>
+                <input required type="text" name="isbn" id="isbn" style="width: 100%; height: 40px">
+                <br/>
+                <br/>
+                <label for="title" style="font-family: Calibre; font-weight: bold; font-size: 20px;">TITLE</label>
+                <br/>
+                <input required type="text" name="title" id="title" style="width: 100%; height: 40px">
+                <br/>
+                <br/>
+                <label for="author" style="font-family: Calibre; font-weight: bold; font-size: 20px;">AUTHOR</label>
+                <br/>
+                <input required type="text" name="author" id="author"style="width: 100%; height: 40px">
+                <br/>
+                <br/>
+                <label for="copyright" style="font-family: Calibre; font-weight: bold; font-size: 20px;">COPYRIGHT</label>
+                <br/>
+                <input required type="text" name="copyright" id="copyright"style="width: 100%; height:40px">
+                <br/>
+                <br/>
+                <label for="edition" style="font-family: Calibre; font-weight: bold; font-size: 20px;">EDITION</label>
+                <br/>
+                <input required type="text" name="edition" id="edition"style="width: 100%; height: 40px">
+                <br/>
+                <br/>
+                <label for="price" style="font-family: Calibre; font-weight: bold; font-size: 20px;">PRICE</label>
+                <br/>
+                <input required type="text" name="price" id="price"style="width: 100%; height: 40px">
+                <br/>
+                <br/>
+                <label for="qty" style="font-family: Calibre; font-weight: bold; font-size: 20px;">QTY</label>
+                <br/>
+                <input required type="text" name="qty" id="qty"style="width: 100%; height: 40px">
+                <br/>
+                <br/>
+                <div style="display: flex; flex-direction: row; justify-content: center; gap: 20px; height: 50px;">
+                    <button type="submit" style="width: 100%; background-color: blue; color: white;">SAVE</button>
+                    <button type="reset" style="width: 100%; background-color: red; color: white;" onclick="return confirmCancel()">CANCEL</button>
+                </div>
+                
+            </form>
+        </div>
+    <table class="w3-table-all" style="height: 100%;">
+        <tr>
+            <th>ISBN</th>
+            <th>TITLE</th>
+            <th>AUTHOR</th>
+            <th>COPYRIGHT</th>
+            <th>EDITION</th>
+            <th>PRICE</th>
+            <th>QTY</th>
+            <th>TOTAL</th>
+            <th colspan="2">ACTIONS</th>
+        </tr>
+
+        {% for book in books %}
+            <tr>
+                <td>{{book.isbn}}</td>
+                <td>{{book.title}}</td>
+                <td>{{book.author}}</td>
+                <td>{{book.copyright}}</td>
+                <td>{{book.edition}}</td>
+                <td>{{book.price}}</td>
+                <td>{{book.qty}}</td>
+                <td>{{ "{:.2f}".format(book.price*book.qty)}}</td>
+                <td><button onclick="editBook('{{book.isbn}}', '{{book.title}}', '{{book.author}}', '{{book.copyright}}', '{{book.edition}}', '{{book.price}}', '{{book.qty}}')">
+                    &#128394;
+                </button></td>
+                <td><button onclick="return submitDelete('{{book.isbn}}')">&#128465;</button></td>
+            </tr>
+        {% endfor %}
+    </table>
+    </div>
+{% endblock %}
